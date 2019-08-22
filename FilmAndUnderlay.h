@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <exception>
 
 
 
@@ -28,7 +29,7 @@ private:
 	std::string FilmElementName;
 	const std::vector<std::string> SampleFormulaNames = {
 		"Sq", "Tau 1_B", "Tau 1_A", "Tau j_A", "P B", "Mu 1_B", "Mu j_B", "Mu j_A", "Mu i_A",
-		"Mu A_B", "d", "Phi", "Psi", "Omega k_B", "Geomety constant", "I 1" };
+		"Mu A_B", "d", "Phi (in rad)", "Psi (in rad)", "Omega k_B", "Geomety constant", "I 1",  "Omega_eff"};
 	
 	std::vector<std::vector<double>> AllSamplesDataForCalculation;
 	std::vector<double> AllSamplesResults;
