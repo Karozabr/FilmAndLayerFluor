@@ -11,16 +11,16 @@
 
 class FilmAndUnderlay {
 public:
-	FilmAndUnderlay();
+	FilmAndUnderlay() = default;
 
-	bool SetVariablesFromConsole();
-	bool SetVariablesFromFile(const std::string FilePath);
+	void SetVariablesFromConsole();
+	void SetVariablesFromFile(const std::string& filepath);
 	
 	void CalculateFilmAlteringUnderlayFluor();
 
-	inline double GetSingleResult(const size_t ResultNumber) const;
-	inline const std::vector<double>& GetAllResults() const;
-	inline size_t GetResultsSize() const;
+	double GetSingleResult(const size_t resultnumber) const;
+	const std::vector<double>& GetAllResults() const;
+	size_t GetResultsSize() const;
 
 private:
 	
@@ -28,23 +28,11 @@ private:
 	std::string UnderlayElementName;
 	std::string FilmElementName;
 	const std::vector<std::string> SampleFormulaNames = {
-		"Sq", "Tau 1_B", "Tau 1_A", "Tau j_A", "P B", "Mu 1_B", "Mu j_B", "Mu j_A", "Mu i_A",
+		"Sq", "Tau 1_B", "Tau 1_A", "Tau j_A", "P B", "Mu 1_B","Mu i_B", "Mu j_B", "Mu j_A", "Mu i_A",
 		"Mu A_B", "d", "Phi (in rad)", "Psi (in rad)", "Omega k_B", "Geomety constant", "I 1",  "Omega_eff"};
 	
 	std::vector<std::vector<double>> AllSamplesDataForCalculation;
 	std::vector<double> AllSamplesResults;
-
-	void AddValue(std::string& item, std::vector<double>& SingleSampleValues);
 };
 
-inline double FilmAndUnderlay::GetSingleResult(size_t ResultNumber) const {
-	return AllSamplesResults.at(ResultNumber);
-}
 
-inline size_t FilmAndUnderlay::GetResultsSize() const {
-	return AllSamplesResults.size();
-}
-
-inline const std::vector<double>& FilmAndUnderlay::GetAllResults() const {
-	return AllSamplesResults;
-}

@@ -1,13 +1,25 @@
 #include "FilmAndUnderlay.h"
 
-FilmAndUnderlay::FilmAndUnderlay(){}
-
-void FilmAndUnderlay::AddValue(std::string& item, std::vector<double>& SingleSampleValues) {
-	SingleSampleValues.push_back(std::stod(item));
-	item.clear();
+namespace {
+	void AddValue(std::string& item, std::vector<double>& valuesvector) {
+		valuesvector.push_back(std::stod(item));
+		item.clear();
+	}
 }
 
-bool FilmAndUnderlay::SetVariablesFromConsole() {
+double FilmAndUnderlay::GetSingleResult(size_t ResultNumber) const {
+	return AllSamplesResults.at(ResultNumber);
+}
+
+size_t FilmAndUnderlay::GetResultsSize() const {
+	return AllSamplesResults.size();
+}
+
+const std::vector<double>& FilmAndUnderlay::GetAllResults() const {
+	return AllSamplesResults;
+}
+
+void FilmAndUnderlay::SetVariablesFromConsole() {
 	std::string item;
 	std::vector<double> SingleSampleValues;
 	for (size_t z = 0; z < SampleFormulaNames.size(); z++)
@@ -16,23 +28,24 @@ bool FilmAndUnderlay::SetVariablesFromConsole() {
 		std::cin >> item;
 		if (std::cin.fail())
 		{
-			return false;
+			throw std::runtime_error("Wrong argument! Input should be float-point value.");
 		}
 		AddValue(item, SingleSampleValues);
 	}
 	AllSamplesDataForCalculation.push_back(SingleSampleValues);
 	std::cout << "Input another sample?" << '\n';
-	std::cout << "1 - Yes   /    Any other - No" << '\n';
+	std::cout << "1 - Yes   /    Any other nuber - No" << '\n';
 	int key;
 	std::cin >> key;
-	if (key == 1) {
-		if (!SetVariablesFromConsole()) return false;
+	if (std::cin.fail())
+	{
+		throw std::runtime_error("Wrong argument! Input should be an integer value.");
 	}
-	return true;
+	if (key == 1) SetVariablesFromConsole();
 }
 
-bool FilmAndUnderlay::SetVariablesFromFile(const std::string FilePath) {
-	std::ifstream input(FilePath, std::ios::in);
+void FilmAndUnderlay::SetVariablesFromFile(const std::string& filepath) {
+	std::ifstream input(filepath, std::ios::in);
 	std::vector<double> SingleSampleValues;
 	while (!input.eof())
 	{
@@ -59,7 +72,6 @@ bool FilmAndUnderlay::SetVariablesFromFile(const std::string FilePath) {
 		}
 		
 	}
-	return true;
 }
 
 void FilmAndUnderlay::CalculateFilmAlteringUnderlayFluor() {
@@ -68,17 +80,35 @@ void FilmAndUnderlay::CalculateFilmAlteringUnderlayFluor() {
 	{
 		double SingleResult = 0;
 //B = Cu, A = Ni
-//"Sq", "Tau 1_B", "Tau 1_A", "Tau j_A", "P B", "Mu 1_B", "Mu j_B", "Mu j_A", "Mu i_A", "Mu A_B", "d", "Phi (in rad)", "Psi (in rad)", "Omega k_B", "Geomety constant", "I 1", "Omega_eff"
-//  0      1           2           3       4        5        6          7         8        9      10     11              12               13                14           15         16
-		double M = ((Sample.at(0) - 1)* Sample.at(1)* Sample.at(13)* Sample.at(4)* Sample.at(3)) / (Sample.at(14) * Sample.at(0) * Sample.at(2));
-		double Part_1 = std::exp(-1*Sample.at(6)* Sample.at(10) / std::sin(Sample.at(16))) / (Sample.at(5)/std::sin(Sample.at(11)) - Sample.at(6)/std::sin(Sample.at(16))); //Â, Ä in formula
-		double Part_2 = 1 - std::exp(-1 * Sample.at(10) * (Sample.at(5)/std::sin(Sample.at(11)) - Sample.at(6)/std::sin(Sample.at(16)))); //Ã in formula
-		double Part_3 = std::exp(-1* Sample.at(10)* Sample.at(8)/std::sin(Sample.at(12))) / (Sample.at(7)/ std::sin(Sample.at(16)) + Sample.at(8)/ std::sin(Sample.at(12))); //Å, Æ in formula
+		const double Sq = Sample.at(0);
+		const double Tau1_B = Sample.at(1);
+		const double Tau1_A = Sample.at(2);
+		const double Tauj_A = Sample.at(3);
+		const double PB = Sample.at(4);
+		const double Mu1_B = Sample.at(5);
+		const double Mui_B = Sample.at(6);
+		const double Muj_B = Sample.at(7);
+		const double Muj_A = Sample.at(8);
+		const double Mui_A = Sample.at(9);
+		const double MuA_B = Sample.at(10);
+		const double d = Sample.at(11);
+		const double Phi = Sample.at(12);
+		const double Psi = Sample.at(13);
+		const double Omegak_B = Sample.at(14);
+		const double Geometyconstant = Sample.at(15);
+		const double I1 = Sample.at(16);
+		const double Omegaeff = Sample.at(17);
+
+		const double M = ((Sq - 1)* Tau1_B* Omegak_B* PB* Tauj_A) /
+							(Geometyconstant * Sq * Tau1_A);
+		const double Part_1 = std::exp(-1*Muj_B* d / std::sin(Omegaeff)) /
+							(Mu1_B/std::sin(Phi) - Muj_B/std::sin(Omegaeff)); //Â, Ä in formula
+		const double Part_2 = 1 - std::exp(	-1 * d *
+											(Mu1_B/std::sin(Phi) - Muj_B/std::sin(Omegaeff))
+										   ); //Ã in formula
+		const double Part_3 = std::exp(-1* d* Mui_B/std::sin(Psi)) /
+										(Muj_A/ std::sin(Omegaeff) + MuA_B/ std::sin(Phi)); //Å, Æ in formula
 		SingleResult = M * Part_1 * Part_2 * Part_3;
-		/*for check*
-		for (const auto item : Sample) {
-			SingleResult += item;
-		}//*/
 		AllSamplesResults.push_back(SingleResult);
 	}
 }

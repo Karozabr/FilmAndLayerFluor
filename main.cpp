@@ -1,16 +1,18 @@
-﻿#include "FilmAndUnderlay.h"
+﻿#include <random>
+#include "FilmAndUnderlay.h"
 
-void PrintAllData(const std::vector<double>& DataToPrint){
+bool PrintAllData(const std::vector<double>& DataToPrint){
 	if (DataToPrint.empty())
 	{
 		std::cout << "No data to print. Data array is empty!" << '\n';
-		return;
+		return false;
 	}
 	for (size_t i = 0; i < DataToPrint.size(); i++)
 	{
 		std::cout << DataToPrint.at(i) << '\n';
 	}
 	std::cout << '\n';
+	return true;
 }
 void PrintArgs(int argc, const char* argv[]) {
 	std::cout << "argc = " << argc << '\n';
@@ -22,21 +24,19 @@ void PrintArgs(int argc, const char* argv[]) {
 
 int main(int argc, const char* argv[])
 {
-	//PrintArgs(argc, argv);
+	//PrintArgs(argc, argv); //for argc & argv tests only
 	if (argc > 2){
 		std::cout << "Too many arguments" << '\n';
-		return 0;
+		return EXIT_FAILURE;
 	}
 	FilmAndUnderlay data;
 	try
 	{
 		if (argc == 2) {
-			if (!data.SetVariablesFromFile(argv[1])) { std::cout << "File error!" << '\n'; return 0; }
+			data.SetVariablesFromFile(argv[1]);
 		}
 		else {
-			if (!data.SetVariablesFromConsole()) {
-				std::cout << "Console input error!" << '\n'; return 0;
-			};
+			data.SetVariablesFromConsole();
 		}
 	}
 	catch (const std::exception& e)
@@ -45,13 +45,14 @@ int main(int argc, const char* argv[])
 	}
 	
 	data.CalculateFilmAlteringUnderlayFluor();
-	PrintAllData(data.GetAllResults());
-	std::cout << "-----------------------------------------" << '\n';
-	if (data.GetResultsSize()==0)
+	if (!PrintAllData(data.GetAllResults()))
 	{
-		return 0;
+		return EXIT_FAILURE;
 	}
-	size_t Randmresult = rand() % data.GetResultsSize();
+	std::cout << "-----------------------------------------" << '\n';
+	std::random_device rd;
+	std::uniform_int_distribution<> distr(0, data.GetResultsSize());
+	size_t Randmresult = distr(rd);
 	std::cout << "Random result from sample " << Randmresult + 1 << " is equals to " << data.GetSingleResult(Randmresult) << '.' << '\n';
 	return 0;
 }
