@@ -76,7 +76,7 @@ void FilmAndUnderlay::SetVariablesFromFile(const std::string& filepath) {
 
 void FilmAndUnderlay::CalculateFilmAlteringUnderlayFluor() {
 	
-	for (const auto Sample : AllSamplesDataForCalculation)
+	for (const auto& Sample : AllSamplesDataForCalculation)
 	{
 		double SingleResult = 0;
 //B = Cu, A = Ni
