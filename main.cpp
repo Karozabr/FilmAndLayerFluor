@@ -2,51 +2,44 @@
 #include "FilmAndUnderlay.h"
 
 bool PrintAllData(const std::vector<double>& DataToPrint){
-	if (DataToPrint.empty())
-	{
+	if (DataToPrint.empty()){
 		std::cout << "No data to print. Data array is empty!" << '\n';
 		return false;
 	}
-	for (size_t i = 0; i < DataToPrint.size(); i++)
-	{
+	for (size_t i = 0; i < DataToPrint.size(); i++){
 		std::cout << DataToPrint.at(i) << '\n';
 	}
 	std::cout << '\n';
 	return true;
 }
-void PrintArgs(int argc, const char* argv[]) {
+void PrintArgs(int argc, const char* argv[]){
 	std::cout << "argc = " << argc << '\n';
-	for (int i = 0; i < argc ; i++)
-	{
+	for (int i = 0; i < argc ; i++){
 		std::cout << argv[i] << '\n';
 	}
 }
 
-int main(int argc, const char* argv[])
-{
+int main(int argc, const char* argv[]){
 	//PrintArgs(argc, argv); //for argc & argv tests only
 	if (argc > 2){
 		std::cout << "Too many arguments" << '\n';
 		return EXIT_FAILURE;
 	}
 	FilmAndUnderlay data;
-	try
-	{
-		if (argc == 2) {
+	try{
+		if (argc == 2){
 			data.SetVariablesFromFile(argv[1]);
 		}
-		else {
+		else{
 			data.SetVariablesFromConsole();
 		}
 	}
-	catch (const std::exception& e)
-	{
+	catch (const std::exception& e){
 		std::cerr << e.what() << '\n';
 	}
 	
 	data.CalculateFilmAlteringUnderlayFluor();
-	if (!PrintAllData(data.GetAllResults()))
-	{
+	if (!PrintAllData(data.GetAllResults())){
 		return EXIT_FAILURE;
 	}
 	std::cout << "-----------------------------------------" << '\n';

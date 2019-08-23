@@ -34,5 +34,3 @@ private:
 	std::vector<std::vector<double>> AllSamplesDataForCalculation;
 	std::vector<double> AllSamplesResults;
 };
-
-
