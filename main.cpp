@@ -44,7 +44,7 @@ int main(int argc, const char* argv[]){
 	}
 	std::cout << "-----------------------------------------" << '\n';
 	std::random_device rd;
-	std::uniform_int_distribution<> distr(0, data.GetResultsSize());
+	std::uniform_int_distribution<> distr(0, data.GetResultsSize() - 1);
 	size_t Randmresult = distr(rd);
 	std::cout << "Random result from sample " << Randmresult + 1 << " is equals to " << data.GetSingleResult(Randmresult) << '.' << '\n';
 	return 0;

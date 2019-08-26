@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <future>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -25,7 +26,9 @@ public:
 private:
 	
 	// ------ Variables in formula ------------- //
+	double CalculateSingleSample(const std::vector<double>& Sample) const;
 	std::string UnderlayElementName;
+
 	std::string FilmElementName;
 	const std::vector<std::string> SampleFormulaNames = {
 		"Sq", "Tau 1_B", "Tau 1_A", "Tau j_A", "P B", "Mu 1_B","Mu i_B", "Mu j_B", "Mu j_A", "Mu i_A",

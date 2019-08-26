@@ -68,38 +68,45 @@ void FilmAndUnderlay::SetVariablesFromFile(const std::string& filepath){
 	}
 }
 
-void FilmAndUnderlay::CalculateFilmAlteringUnderlayFluor(){
-	
-	for (const auto& Sample : AllSamplesDataForCalculation){
-		//B = Cu, A = Ni
-		const double Sq = Sample.at(0);
-		const double Tau1_B = Sample.at(1);
-		const double Tau1_A = Sample.at(2);
-		const double Tauj_A = Sample.at(3);
-		const double PB = Sample.at(4);
-		const double Mu1_B = Sample.at(5);
-		const double Mui_B = Sample.at(6);
-		const double Muj_B = Sample.at(7);
-		const double Muj_A = Sample.at(8);
-		const double Mui_A = Sample.at(9);
-		const double MuA_B = Sample.at(10);
-		const double d = Sample.at(11);
-		const double Phi = Sample.at(12);
-		const double Psi = Sample.at(13);
-		const double Omegak_B = Sample.at(14);
-		const double Geometyconstant = Sample.at(15);
-		const double I1 = Sample.at(16);
-		const double Omegaeff = Sample.at(17);
+double FilmAndUnderlay::CalculateSingleSample(const std::vector<double>& Sample) const{
+	//B = Cu, A = Ni
+	const double Sq = Sample.at(0);
+	const double Tau1_B = Sample.at(1);
+	const double Tau1_A = Sample.at(2);
+	const double Tauj_A = Sample.at(3);
+	const double PB = Sample.at(4);
+	const double Mu1_B = Sample.at(5);
+	const double Mui_B = Sample.at(6);
+	const double Muj_B = Sample.at(7);
+	const double Muj_A = Sample.at(8);
+	const double Mui_A = Sample.at(9);
+	const double MuA_B = Sample.at(10);
+	const double d = Sample.at(11);
+	const double Phi = Sample.at(12);
+	const double Psi = Sample.at(13);
+	const double Omegak_B = Sample.at(14);
+	const double Geometyconstant = Sample.at(15);
+	const double I1 = Sample.at(16);
+	const double Omegaeff = Sample.at(17);
 
-		const double M = ((Sq - 1)* Tau1_B* Omegak_B* PB* Tauj_A) /
-							(Geometyconstant * Sq * Tau1_A);
-		const double Part_1 = std::exp(-1*Muj_B* d / std::sin(Omegaeff)) /
-							(Mu1_B/std::sin(Phi) - Muj_B/std::sin(Omegaeff)); //Â, Ä in formula
-		const double Part_2 = 1 - std::exp(	-1 * d *
-											(Mu1_B/std::sin(Phi) - Muj_B/std::sin(Omegaeff))
-										   ); //Ã in formula
-		const double Part_3 = std::exp(-1* d* Mui_B/std::sin(Psi)) /
-										(Muj_A/ std::sin(Omegaeff) + MuA_B/ std::sin(Phi)); //Å, Æ in formula
-		AllSamplesResults.push_back(M * Part_1 * Part_2 * Part_3);
+	const double M = ((Sq - 1) * Tau1_B * Omegak_B * PB * Tauj_A) /
+		(Geometyconstant * Sq * Tau1_A);
+	const double Part_1 = std::exp(-1 * Muj_B * d / std::sin(Omegaeff)) /
+		(Mu1_B / std::sin(Phi) - Muj_B / std::sin(Omegaeff)); //Â, Ä in formula
+	const double Part_2 = 1 - std::exp(-1 * d *
+		(Mu1_B / std::sin(Phi) - Muj_B / std::sin(Omegaeff))
+	); //Ã in formula
+	const double Part_3 = std::exp(-1 * d * Mui_B / std::sin(Psi)) /
+		(Muj_A / std::sin(Omegaeff) + MuA_B / std::sin(Phi)); //Å, Æ in formula
+	return M * Part_1 * Part_2 * Part_3;
+}
+
+void FilmAndUnderlay::CalculateFilmAlteringUnderlayFluor(){
+	std::vector<std::future<double>> threads;
+	for (const auto& sample : AllSamplesDataForCalculation){
+		threads.push_back(std::async([&]{return CalculateSingleSample(sample); }));
+	}
+	for (auto& res : threads){
+		AllSamplesResults.push_back(res.get());
 	}
 }
